@@ -20,7 +20,7 @@ public extension PVTimeRange{
 public typealias PVStatus = AVPlayerStatus
 public typealias PVItemStatus = AVPlayerItemStatus
 public typealias PVTimeRange = CMTimeRange
-public typealias PVPlayer = AVQueuePlayer
+public typealias PVPlayer = AVPlayer
 public typealias PVPlayerItem = AVPlayerItem
 
 public protocol PlayerViewDelegate: class {
@@ -62,39 +62,39 @@ public extension PlayerViewDelegate {
     func playerVideo(_ player: PlayerView, playbackStarted: Bool) { }
     func playerVideo(_ player: PlayerView, buffering: Bool) { }
 }
-
-public enum PlayerViewFillMode {
-    case resizeAspect
-    case resizeAspectFill
-    case resize
-    
-    init?(videoGravity: String){
-        switch videoGravity {
-        case AVLayerVideoGravityResizeAspect:
-            self = .resizeAspect
-        case AVLayerVideoGravityResizeAspectFill:
-            self = .resizeAspectFill
-        case AVLayerVideoGravityResize:
-            self = .resize
-        default:
-            return nil
-        }
-    }
-    
-    var AVLayerVideoGravity: String {
-        get {
-            switch self {
-            case .resizeAspect:
-                return AVLayerVideoGravityResizeAspect
-            case .resizeAspectFill:
-                return AVLayerVideoGravityResizeAspectFill
-            case .resize:
-                return AVLayerVideoGravityResize
-            }
-        }
-    }
-}
-
+/*
+ public enum PlayerViewFillMode {
+ case resizeAspect
+ case resizeAspectFill
+ case resize
+ 
+ init?(videoGravity: AVLayerVideoGravity){
+ switch videoGravity {
+ case AVLayerVideoGravity.resizeAspect:
+ self = .resizeAspect
+ case AVLayerVideoGravity.resizeAspectFill:
+ self = .resizeAspectFill
+ case AVLayerVideoGravity.resize:
+ self = .resize
+ default:
+ return nil
+ }
+ }
+ 
+ var AVLayerVideoGravity: AVLayerVideoGravity {
+ get {
+ switch self {
+ case .resizeAspect:
+ return AVLayerVideoGravity.resizeAspect
+ case .resizeAspectFill:
+ return AVLayerVideoGravity.resizeAspectFill
+ case .resize:
+ return AVLayerVideoGravity.resize
+ }
+ }
+ }
+ }
+ */
 private extension CMTime {
     static var zero:CMTime { return kCMTimeZero }
 }
@@ -138,9 +138,9 @@ open class PlayerView: UIView {
     }
     
     
-    open var fillMode: PlayerViewFillMode! {
+    open var fillMode: AVLayerVideoGravity! {
         didSet {
-            playerLayer.videoGravity = fillMode.AVLayerVideoGravity
+            playerLayer.videoGravity = fillMode
         }
     }
     
@@ -194,9 +194,9 @@ open class PlayerView: UIView {
      Add all observers for a PVPlayer
      */
     func addObserversPlayer(_ avPlayer: PVPlayer) {
-        avPlayer.addObserver(self, forKeyPath: "status", options: [.new], context: &statusContext)
-        avPlayer.addObserver(self, forKeyPath: "rate", options: [.new], context: &rateContext)
-        avPlayer.addObserver(self, forKeyPath: "currentItem", options: [.old,.new], context: &playerItemContext)
+        //        avPlayer.addObserver(self, forKeyPath: "status", options: [.new], context: &statusContext)
+        //        avPlayer.addObserver(self, forKeyPath: "rate", options: [.new], context: &rateContext)
+        //        avPlayer.addObserver(self, forKeyPath: "currentItem", options: [.old,.new], context: &playerItemContext)
     }
     
     /**
@@ -204,58 +204,58 @@ open class PlayerView: UIView {
      */
     func removeObserversPlayer(_ avPlayer: PVPlayer) {
         
-        avPlayer.removeObserver(self, forKeyPath: "status", context: &statusContext)
-        avPlayer.removeObserver(self, forKeyPath: "rate", context: &rateContext)
-        avPlayer.removeObserver(self, forKeyPath: "currentItem", context: &playerItemContext)
-        
-        if let timeObserverToken = timeObserverToken {
-            avPlayer.removeTimeObserver(timeObserverToken)
-        }
-        
-        if let playbackObserverToken = playbackObserverToken {
-            avPlayer.removeTimeObserver(playbackObserverToken)
-        }
-        
-        if let bufferingObserverToken = bufferingObserverToken {
-            avPlayer.removeTimeObserver(bufferingObserverToken)
-        }
+        //        avPlayer.removeObserver(self, forKeyPath: "status", context: &statusContext)
+        //        avPlayer.removeObserver(self, forKeyPath: "rate", context: &rateContext)
+        //        avPlayer.removeObserver(self, forKeyPath: "currentItem", context: &playerItemContext)
+        //
+        //        if let timeObserverToken = timeObserverToken {
+        //            avPlayer.removeTimeObserver(timeObserverToken)
+        //        }
+        //
+        //        if let playbackObserverToken = playbackObserverToken {
+        //            avPlayer.removeTimeObserver(playbackObserverToken)
+        //        }
+        //
+        //        if let bufferingObserverToken = bufferingObserverToken {
+        //            avPlayer.removeTimeObserver(bufferingObserverToken)
+        //        }
     }
     func addObserversVideoItem(_ playerItem: PVPlayerItem) {
-        playerItem.addObserver(self, forKeyPath: "loadedTimeRanges", options: [], context: &loadedContext)
-        playerItem.addObserver(self, forKeyPath: "duration", options: [], context: &durationContext)
-        playerItem.addObserver(self, forKeyPath: "status", options: [], context: &statusItemContext)
-        playerItem.addObserver(self, forKeyPath: "playbackBufferEmpty", options: [.new], context: &playerItemBuffer)
-        playerItem.addObserver(self, forKeyPath: "playbackLikelyToKeepUp", options: [.new], context: &playerItemLikelyUp)
-        playerItem.addObserver(self, forKeyPath: "playbackBufferFull", options: [.new], context: &playerItemBufferFull)
-        NotificationCenter.default.addObserver(self, selector: .playerItemDidPlayToEndTime, name: NSNotification.Name.AVPlayerItemDidPlayToEndTime, object: playerItem)
+        //        playerItem.addObserver(self, forKeyPath: "loadedTimeRanges", options: [], context: &loadedContext)
+        //        playerItem.addObserver(self, forKeyPath: "duration", options: [], context: &durationContext)
+        //        playerItem.addObserver(self, forKeyPath: "status", options: [], context: &statusItemContext)
+        //        playerItem.addObserver(self, forKeyPath: "playbackBufferEmpty", options: [.new], context: &playerItemBuffer)
+        //        playerItem.addObserver(self, forKeyPath: "playbackLikelyToKeepUp", options: [.new], context: &playerItemLikelyUp)
+        //        playerItem.addObserver(self, forKeyPath: "playbackBufferFull", options: [.new], context: &playerItemBufferFull)
+        //        NotificationCenter.default.addObserver(self, selector: .playerItemDidPlayToEndTime, name: NSNotification.Name.AVPlayerItemDidPlayToEndTime, object: playerItem)
     }
     func removeObserversVideoItem(playerItem: PVPlayerItem) {
         
-        playerItem.removeObserver(self, forKeyPath: "loadedTimeRanges", context: &loadedContext)
-        playerItem.removeObserver(self, forKeyPath: "duration", context: &durationContext)
-        playerItem.removeObserver(self, forKeyPath: "status", context: &statusItemContext)
-        playerItem.removeObserver(self, forKeyPath: "playbackBufferEmpty", context: &playerItemBuffer)
-        playerItem.removeObserver(self, forKeyPath: "playbackLikelyToKeepUp", context: &playerItemLikelyUp)
-        playerItem.removeObserver(self, forKeyPath: "playbackBufferFull", context: &playerItemBufferFull)
-        NotificationCenter.default.removeObserver(self, name: NSNotification.Name.AVPlayerItemDidPlayToEndTime, object: playerItem)
+        //        playerItem.removeObserver(self, forKeyPath: "loadedTimeRanges", context: &loadedContext)
+        //        playerItem.removeObserver(self, forKeyPath: "duration", context: &durationContext)
+        //        playerItem.removeObserver(self, forKeyPath: "status", context: &statusItemContext)
+        //        playerItem.removeObserver(self, forKeyPath: "playbackBufferEmpty", context: &playerItemBuffer)
+        //        playerItem.removeObserver(self, forKeyPath: "playbackLikelyToKeepUp", context: &playerItemLikelyUp)
+        //        playerItem.removeObserver(self, forKeyPath: "playbackBufferFull", context: &playerItemBufferFull)
+        //        NotificationCenter.default.removeObserver(self, name: NSNotification.Name.AVPlayerItemDidPlayToEndTime, object: playerItem)
     }
     
     func removeCurrentTimeObserver() {
         
-        if let timeObserverToken = self.timeObserverToken {
-            lastPlayerTimeObserve?.removeTimeObserver(timeObserverToken)
-        }
-        timeObserverToken = nil
-        
-        if let playbackObserverToken = self.playbackObserverToken {
-            lastPlayerTimeObserve?.removeTimeObserver(playbackObserverToken)
-        }
-        playbackObserverToken = nil
-        
-        if let bufferingObserverToken = self.bufferingObserverToken {
-            lastPlayerTimeObserve?.removeTimeObserver(bufferingObserverToken)
-        }
-        bufferingObserverToken = nil
+        //        if let timeObserverToken = self.timeObserverToken {
+        //            lastPlayerTimeObserve?.removeTimeObserver(timeObserverToken)
+        //        }
+        //        timeObserverToken = nil
+        //
+        //        if let playbackObserverToken = self.playbackObserverToken {
+        //            lastPlayerTimeObserve?.removeTimeObserver(playbackObserverToken)
+        //        }
+        //        playbackObserverToken = nil
+        //
+        //        if let bufferingObserverToken = self.bufferingObserverToken {
+        //            lastPlayerTimeObserve?.removeTimeObserver(bufferingObserverToken)
+        //        }
+        //        bufferingObserverToken = nil
     }
     
     func addCurrentTimeObserver() {
@@ -285,10 +285,10 @@ open class PlayerView: UIView {
             } as AnyObject?
     }
     
-    func playerItemDidPlayToEndTime(aNotification: NSNotification) {
+    @objc func playerItemDidPlayToEndTime(aNotification: NSNotification) {
         //notification of player to stop
         let item = aNotification.object as! PVPlayerItem
-        if loopVideosQueue && player?.items().count == 1,
+        if loopVideosQueue, //&& player?.items().count == 1,
             let urlsQueue = urlsQueue {
             
             self.addVideosOnQueue(urlsQueue, afterItem: item)
@@ -310,10 +310,10 @@ open class PlayerView: UIView {
     
     public func stop() {
         currentTime = 0
-        pause()
+        //        pause()
     }
     public func next() {
-        player?.advanceToNextItem()
+        //player?.advanceToNextItem()
     }
     
     public func resetPlayer() {
@@ -321,7 +321,7 @@ open class PlayerView: UIView {
         guard let player = player else {
             return
         }
-        player.pause()
+        //        player.pause()
         
         removeObserversPlayer(player)
         
@@ -405,24 +405,24 @@ open class PlayerView: UIView {
                 return PVPlayerItem(url: url)
             }
             
-            let avPlayer = PVPlayer(items: playerItems)
+            let avPlayer = PVPlayer(playerItem: playerItems.first)
             self.player = avPlayer
             
-            avPlayer.actionAtItemEnd = .pause
+            //            avPlayer.actionAtItemEnd = .pause
             
             
             let playerItem = avPlayer.currentItem!
             
             print("adding observers")
-            addObserversPlayer(avPlayer)
-            addObserversVideoItem(playerItem)
+            //            addObserversPlayer(avPlayer)
+            //            addObserversVideoItem(playerItem)
             
             // Do any additional setup after loading the view, typically from a nib.
         }
     }
     public func addVideosOnQueue(_ urls: [URL], afterItem: PVPlayerItem? = nil) {
         //on last item on player
-        let item = afterItem ?? player?.items().last
+        let item = afterItem //?? player?.items().last
         
         urlsQueue?.append(contentsOf: urls)
         //for each url found
@@ -433,7 +433,7 @@ open class PlayerView: UIView {
             
             
             //and insert the item on the player
-            player?.insert(itemNew, after: item)
+            //player?.insert(itemNew, after: item)
         })
         
     }
@@ -550,7 +550,7 @@ open class PlayerView: UIView {
             guard let newItem = (change?[NSKeyValueChangeKey.newKey] as? PVPlayerItem) else{
                 return
             }
-            addObserversVideoItem(newItem)
+            //            addObserversVideoItem(newItem)
         } else if context == &playerItemBuffer{
             print("--- Buffering ---")
         } else if context == &playerItemLikelyUp{
@@ -562,3 +562,4 @@ open class PlayerView: UIView {
         }
     }
 }
+
